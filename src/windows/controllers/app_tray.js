@@ -68,7 +68,12 @@ class AppTray {
 
   hideSplashAndShowWeChat() {
     if (this.splashWindow.isShown) return;
-    this.wechatWindow.show();
+    if (this.wechatWindow.isShown){
+		this.wechatWindow.hide();		
+	}
+	else{	
+		this.wechatWindow.show();
+	}
   }
 
   refreshIcon() {
