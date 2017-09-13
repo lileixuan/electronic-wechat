@@ -1,6 +1,10 @@
 <img src="assets/icon.png" alt="logo" height="120" align="right" />
+
 # Electronic WeChat
+
 *A better WeChat on macOS and Linux. Built with [Electron](https://github.com/atom/electron).*
+
+**Important:** If you want to build the app by yourself rather than download the release directly, please consider to use the source code from [the production branch](https://github.com/geeeeeeeeek/electronic-wechat/tree/production), the master branch is under development and we cannot guarantee it to be stable.
 
 [![Gitter](https://badges.gitter.im/geeeeeeeeek/electronic-wechat.svg)](https://gitter.im/geeeeeeeeek/electronic-wechat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 [![Build Status](https://travis-ci.org/geeeeeeeeek/electronic-wechat.svg?branch=master)](https://travis-ci.org/geeeeeeeeek/electronic-wechat)
@@ -15,10 +19,10 @@
 - **Modern UI and all features from Web WeChat.**
 - **Block message recall.**
 - **Stickers showing support.** [[?]](https://github.com/geeeeeeeeek/electronic-wechat/issues/2)
-- Share subscribed passages on Weibo, Qzone, Facebook, Twitter, Evernote and email.
+- Share subscribed passages on Weibo, Qzone, Facebook, Twitter, Evernote, and email.
 - Mention users in a group chat.
 - Drag and drop to send photos.
-- Behaves like a native app, based on dozens of optimisation.
+- Behaves like a native app, based on dozens of optimization.
 - Removes URL link redirects and takes you directly to blocked websites (e.g. taobao.com).
 
 ## How To Use
@@ -39,6 +43,8 @@ To pack into an app, simply type one of these:
 ``` shell
 npm run build:osx
 npm run build:linux
+npm run build:win32
+npm run build:win64
 ```
 
 **New:** Install with your familiar package manager. Check out [images maintained by the community](https://github.com/geeeeeeeeek/electronic-wechat/wiki/System-Support-Matrix#%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E7%9A%84%E5%AE%89%E8%A3%85%E5%8C%85)!

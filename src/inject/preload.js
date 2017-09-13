@@ -1,11 +1,16 @@
 'use strict';
+
 const { ipcRenderer, webFrame } = require('electron');
 const MenuHandler = require('../handlers/menu');
 const ShareMenu = require('./share_menu');
 const MentionMenu = require('./mention_menu');
 const BadgeCount = require('./badge_count');
 const Common = require('../common');
+const NotificationInjector = require("../notify/notification_injector");
+// const EmojiParser = require('./emoji_parser');
+// const emojione = require('emojione');
 
+const AppConfig = require('../configuration');
 
 class Injector {
   init() {
@@ -14,6 +19,8 @@ class Injector {
     }
     this.initInjectBundle();
     this.initAngularInjection();
+    this.lastUser = null;
+    this.initIPC();
     webFrame.setZoomLevelLimits(1, 1);
 
     new MenuHandler().create();
@@ -45,7 +52,7 @@ class Injector {
         }]);
         return angularBootstrapReal.apply(angular, arguments);
       } : angularBootstrapReal,
-      set: (real) => (angularBootstrapReal = real)
+      set: (real) => (angularBootstrapReal = real),
     });
   }
 
@@ -57,6 +64,7 @@ class Injector {
 
       MentionMenu.init();
       BadgeCount.init();
+      NotificationInjector.init();
     };
 
     window.onload = () => {
@@ -84,8 +92,7 @@ class Injector {
   static lock(object, key, value) {
     return Object.defineProperty(object, key, {
       get: () => value,
-      set: () => {
-      },
+      set: () => {},
     });
   }
 
@@ -93,6 +100,9 @@ class Injector {
     if (!(value.AddMsgList instanceof Array)) return value;
     value.AddMsgList.forEach((msg) => {
       switch (msg.MsgType) {
+        // case constants.MSGTYPE_TEXT:
+        //   msg.Content = EmojiParser.emojiToImage(msg.Content);
+        //   break;
         case constants.MSGTYPE_EMOTICON:
           Injector.lock(msg, 'MMDigest', '[Emoticon]');
           Injector.lock(msg, 'MsgType', constants.MSGTYPE_EMOTICON);
@@ -103,9 +113,11 @@ class Injector {
           }
           break;
         case constants.MSGTYPE_RECALLED:
-          Injector.lock(msg, 'MsgType', constants.MSGTYPE_SYS);
-          Injector.lock(msg, 'MMActualContent', Common.MESSAGE_PREVENT_RECALL);
-          Injector.lock(msg, 'MMDigest', Common.MESSAGE_PREVENT_RECALL);
+          if (AppConfig.readSettings('prevent-recall') === 'on') {
+            Injector.lock(msg, 'MsgType', constants.MSGTYPE_SYS);
+            Injector.lock(msg, 'MMActualContent', Common.MESSAGE_PREVENT_RECALL);
+            Injector.lock(msg, 'MMDigest', Common.MESSAGE_PREVENT_RECALL);
+          }
           break;
       }
     });
@@ -121,6 +133,20 @@ class Injector {
       value = value.replace(messageBoxKeydownReg, 'editAreaKeydown($event);mentionMenu($event);');
     }
     return value;
+  }
+
+  initIPC() {
+    // clear currentUser to receive reddot of new messages from the current chat user
+    ipcRenderer.on('hide-wechat-window', () => {
+      this.lastUser = angular.element('#chatArea').scope().currentUser;
+      angular.element('.chat_list').scope().itemClick(null);
+    });
+    // recover to the last chat user
+    ipcRenderer.on('show-wechat-window', (event, selectedUser) => {
+      if (selectedUser != null || this.lastUser != null) {
+        angular.element('.chat_list').scope().itemClick(selectedUser || this.lastUser);
+      }
+    });
   }
 }
 
